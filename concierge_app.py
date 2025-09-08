@@ -112,7 +112,6 @@ SEED_MENU: List[Dict[str, Any]] = [
     {"name":"Egg White & Roasted Red Pepper Egg Bites", "chain":"Starbucks","cuisine":"Cafe","K":170,"P":13,"C":11,"F":7},
     {"name":"6\" Turkey on wheat, double meat, loaded veg, no cheese", "chain":"Subway","cuisine":"Sandwiches","K":420,"P":34,"C":54,"F":8},
     {"name":"Bowl: Grilled Teriyaki Chicken + Super Greens", "chain":"Panda Express","cuisine":"Chinese","K":420,"P":36,"C":26,"F":18},
-    {"name":"Lifestyle Bowl: double chicken, white rice, black beans, tomatillo, lettuce, guac", "chain":"Chipotle","cuisine":"Mexican","K":760,"P":65,"C":66,"F":24},
     {"name":"Footlong Turkey (double meat) on wheat, cheese, full condiments", "chain":"Subway","cuisine":"Sandwiches","K":720,"P":55,"C":78,"F":20},
     {"name":"Orange Chicken + Super Greens (plate) + extra chicken", "chain":"Panda Express","cuisine":"Chinese","K":780,"P":45,"C":75,"F":30},
     {"name":"Grilled Chicken Club Sandwich + small fries", "chain":"Chick-fil-A","cuisine":"American","K":830,"P":44,"C":74,"F":39},
