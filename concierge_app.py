@@ -175,7 +175,60 @@ SEED_MENU: List[Dict[str, Any]] = [
     {"name":"Fairlife 42g shake + 2 bananas + nut pack (1 oz)", "chain":"Gas Station","cuisine":"Any","K":600,"P":42,"C":95,"F":15},
 
     {"name":"Egg-white veggie omelette + fruit + dry toast", "chain":"IHOP","cuisine":"American","K":620,"P":45,"C":68,"F":14},
-    {"name":"Fit Slam: egg whites + turkey bacon + English muffin + fruit", "chain":"Denny's","cuisine":"American","K":650,"P":40,"C":70,"F":20}
+    {"name":"Fit Slam: egg whites + turkey bacon + English muffin + fruit", "chain":"Denny's","cuisine":"American","K":650,"P":40,"C":70,"F":20},
+    
+    # ---- High-calorie additions ----
+{"name":"Double Chicken Burrito + rice, beans, queso, guac", "chain":"Chipotle","cuisine":"Mexican","K":1150,"P":72,"C":108,"F":42},
+{"name":"Double Steak Bowl + white rice, black beans, queso, guac", "chain":"Chipotle","cuisine":"Mexican","K":1000,"P":66,"C":86,"F":35},
+{"name":"Carnitas Burrito + queso + guac", "chain":"Chipotle","cuisine":"Mexican","K":1200,"P":52,"C":110,"F":55},
+{"name":"Chicken Quesadilla (large) + guac", "chain":"Chipotle","cuisine":"Mexican","K":900,"P":55,"C":60,"F":45},
+{"name":"Burrito Bowl: double chicken, double rice, beans, queso", "chain":"Chipotle","cuisine":"Mexican","K":1050,"P":70,"C":115,"F":28},
+
+{"name":"Spicy Deluxe Sandwich + medium waffle fries", "chain":"Chick-fil-A","cuisine":"American","K":980,"P":36,"C":96,"F":45},
+{"name":"12ct Nuggets (fried) + medium waffle fries", "chain":"Chick-fil-A","cuisine":"American","K":970,"P":44,"C":88,"F":42},
+{"name":"Grilled Chicken Sandwich + Mac & Cheese (medium)", "chain":"Chick-fil-A","cuisine":"American","K":920,"P":45,"C":92,"F":28},
+
+{"name":"Footlong Italian B.M.T. (double meat & cheese) on Italian", "chain":"Subway","cuisine":"Sandwiches","K":1040,"P":60,"C":96,"F":44},
+{"name":"Footlong Steak & Cheese (double meat) + full condiments", "chain":"Subway","cuisine":"Sandwiches","K":980,"P":62,"C":90,"F":32},
+{"name":"Protein Bowl: double rotisserie chicken + avocado + rice", "chain":"Subway","cuisine":"Sandwiches","K":900,"P":70,"C":60,"F":32},
+
+{"name":"Bigger Plate: Orange Chicken + Beijing Beef + Chow Mein", "chain":"Panda Express","cuisine":"Chinese","K":1420,"P":45,"C":150,"F":60},
+{"name":"Plate: Orange Chicken + Honey Sesame Chicken + Fried Rice", "chain":"Panda Express","cuisine":"Chinese","K":1180,"P":40,"C":130,"F":42},
+{"name":"Bowl: Shanghai Angus Steak + Chow Mein", "chain":"Panda Express","cuisine":"Chinese","K":930,"P":34,"C":96,"F":34},
+
+{"name":"Power Menu Bowl (Chicken) + cheesy fiesta potatoes", "chain":"Taco Bell","cuisine":"Mexican","K":820,"P":30,"C":90,"F":28},
+{"name":"Grilled Cheese Burrito (steak) + Beef Burrito", "chain":"Taco Bell","cuisine":"Mexican","K":1200,"P":55,"C":126,"F":44},
+
+{"name":"Burrito: extra chicken + rice + beans + queso + guac", "chain":"QDOBA","cuisine":"Mexican","K":1120,"P":62,"C":104,"F":38},
+{"name":"Burrito Bowl: double steak + queso + guac + tortilla on side", "chain":"QDOBA","cuisine":"Mexican","K":1050,"P":60,"C":95,"F":36},
+
+{"name":"Double Quarter Pounder w/ Cheese + medium fries", "chain":"McDonald's","cuisine":"American","K":1290,"P":63,"C":103,"F":62},
+{"name":"Big Mac + 10pc Chicken McNuggets (no fries)", "chain":"McDonald's","cuisine":"American","K":1160,"P":57,"C":96,"F":54},
+
+{"name":"Dave's Double + plain baked potato (butter packet)", "chain":"Wendy's","cuisine":"American","K":1210,"P":63,"C":96,"F":60},
+{"name":"Baconator (single) + medium chili", "chain":"Wendy's","cuisine":"American","K":1150,"P":64,"C":54,"F":72},
+
+{"name":"Chipotle Chicken Avocado Melt + Mac & Cheese (cup)", "chain":"Panera","cuisine":"American","K":1170,"P":52,"C":98,"F":56},
+{"name":"Turkey Avocado BLT (whole) + chips", "chain":"Panera","cuisine":"American","K":980,"P":45,"C":90,"F":38},
+
+{"name":"3pc Chicken (mixed) + mashed & gravy + biscuit", "chain":"KFC","cuisine":"American","K":1150,"P":60,"C":90,"F":55},
+{"name":"5 Blackened Tenders + large Red Beans & Rice + biscuit", "chain":"Popeyes","cuisine":"American","K":1020,"P":55,"C":98,"F":34},
+
+{"name":"Double ShackBurger + fries (share half)", "chain":"Shake Shack","cuisine":"American","K":1200,"P":50,"C":90,"F":65},
+{"name":"Cheeseburger + little fries (share half)", "chain":"Five Guys","cuisine":"American","K":1250,"P":45,"C":85,"F":72},
+
+{"name":"Hot Bar: grilled salmon (10 oz) + olive oil drizzle + rice cup", "chain":"Whole Foods","cuisine":"Any","K":1050,"P":62,"C":70,"F":50},
+{"name":"Chicken & Pesto Pasta (large) + side Caesar", "chain":"Whole Foods","cuisine":"Any","K":1120,"P":55,"C":110,"F":42},
+
+{"name":"Mass-gainer smoothie: whole milk, whey double, PB, oats, banana", "chain":"Grocery","cuisine":"Any","K":1000,"P":65,"C":110,"F":30},
+{"name":"Big burrito bowl + tortilla chips & guacamole", "chain":"Grocery","cuisine":"Any","K":1080,"P":48,"C":105,"F":42},
+{"name":"Chicken Alfredo (microwave tray, ~16 oz)", "chain":"Grocery","cuisine":"Any","K":980,"P":50,"C":72,"F":50},
+
+{"name":"Fairlife 42g shakes (2) + trail mix (1.5 oz)", "chain":"Gas Station","cuisine":"Any","K":980,"P":84,"C":60,"F":36},
+
+{"name":"Protein Pancakes stack + eggs + turkey bacon", "chain":"IHOP","cuisine":"American","K":1050,"P":55,"C":120,"F":34},
+{"name":"Fit Slam + French toast (single slice)", "chain":"Denny's","cuisine":"American","K":1010,"P":48,"C":120,"F":28},
+
 
 ]
 
