@@ -311,7 +311,7 @@ button{padding:10px 14px; border-radius:12px; background:var(--accent); color:#0
     <div class="card">
       <div><strong>Day {{ loop.index }}</strong> &nbsp; <span class="muted small">Totals: {{ d.K }} kcal · {{ d.P }}g P · {{ d.C }}g C · {{ d.F }}g F</span></div>
       <div>
-        {% for it in d.items %}
+        {% for it in d["items"] %}
           <div class="meal">
             <div><strong>{{ it.name }}</strong></div>
             <div class="muted small">{{ it.chain }} · {{ it.cuisine }}</div>
