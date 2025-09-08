@@ -33,35 +33,89 @@ def add_embed_headers(resp):
     # Example: resp.headers["Content-Security-Policy"] = "frame-ancestors 'self' https://members.yourdomain.com"
     return resp
 
+# ---------- MENU LOADING ----------
+import csv, io
+from typing import Iterable
+
+MENU_PATH = os.environ.get("MENU_PATH", "data/menu.json")  # local file in repo
+MENU_CSV_URL = os.environ.get("MENU_CSV_URL")              # published CSV URL (optional)
+ADMIN_RELOAD_KEY = os.environ.get("ADMIN_RELOAD_KEY", "change-me")
+
+def _coerce_item(d: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Validate & coerce one item. Return None if invalid."""
+    required = ["name","chain","cuisine","K","P","C","F"]
+    if not all(k in d and str(d[k]).strip() != "" for k in required):
+        return None
+    try:
+        d["K"] = int(float(d["K"])); d["P"] = int(float(d["P"]))
+        d["C"] = int(float(d["C"])); d["F"] = int(float(d["F"]))
+    except Exception:
+        return None
+    # optional fields
+    d["meal_type"] = (d.get("meal_type") or "").lower() or None
+    if isinstance(d.get("tags"), str):
+        d["tags"] = [t.strip() for t in d["tags"].split(",") if t.strip()]
+    elif not isinstance(d.get("tags"), list):
+        d["tags"] = []
+    return d
+
+def load_menu_from_json(path: str) -> List[Dict[str, Any]]:
+    if not os.path.exists(path): return []
+    with open(path, "r", encoding="utf-8") as f:
+        raw = json.load(f)
+    items = raw["items"] if isinstance(raw, dict) and "items" in raw else raw
+    out = []
+    for x in items:
+        x = _coerce_item(x)
+        if x: out.append(x)
+    return out
+
+def load_menu_from_csv_text(csv_text: str) -> List[Dict[str, Any]]:
+    reader = csv.DictReader(io.StringIO(csv_text))
+    out = []
+    for row in reader:
+        item = _coerce_item(row)
+        if item: out.append(item)
+    return out
+
+def load_menu() -> List[Dict[str, Any]]:
+    # 1) If a CSV URL is set, try pull it
+    if MENU_CSV_URL:
+        try:
+            import requests
+            r = requests.get(MENU_CSV_URL, timeout=10)
+            if r.ok and r.text.strip():
+                data = load_menu_from_csv_text(r.text)
+                if data: return data
+        except Exception:
+            pass  # fall back
+    # 2) local JSON file if present
+    data = load_menu_from_json(MENU_PATH)
+    return data  # may be [] if none found
+
+def merged_menu(seed: List[Dict[str, Any]], external: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Seed + external (external wins on exact (chain,name) duplicates)."""
+    key = lambda x: (x["chain"].lower(), x["name"].lower())
+    seen = {}
+    for x in seed: seen[key(x)] = x
+    for x in external: seen[key(x)] = x
+    return list(seen.values())
+
+
 # -----------------------------
 # Seed menu (expand as you like)
 # -----------------------------
-MENU: List[Dict[str, Any]] = [
+SEED_MENU: List[Dict[str, Any]] = [
     {"name":"Burrito Bowl: chicken, fajita veg, brown rice (light), pico, salsa, lettuce", "chain":"Chipotle","cuisine":"Mexican","K":540,"P":48,"C":58,"F":14},
     {"name":"Salad Bowl: steak, black beans, pico, tomatillo salsa", "chain":"Chipotle","cuisine":"Mexican","K":430,"P":42,"C":33,"F":14},
-    {"name":"Kids: 2 tacos chicken + fajita veg + tomatillo", "chain":"Chipotle","cuisine":"Mexican","K":390,"P":32,"C":40,"F":10},
-    {"name":"Lifestyle Bowl: chicken, cauliflower rice, fajita veg, tomatillo", "chain":"Chipotle","cuisine":"Mexican","K":360,"P":38,"C":22,"F":12},
-    {"name":"Grilled Chicken Sandwich (no sauce)", "chain":"Chick-fil-A","cuisine":"American","K":380,"P":28,"C":43,"F":11},
     {"name":"Grilled Nuggets (12 ct) + Side Salad (lite dressing)", "chain":"Chick-fil-A","cuisine":"American","K":360,"P":46,"C":18,"F":12},
-    {"name":"Market Salad w/ Grilled Chicken (lite dressing)", "chain":"Chick-fil-A","cuisine":"American","K":430,"P":34,"C":34,"F":17},
-    {"name":"Egg White Grill", "chain":"Chick-fil-A","cuisine":"American","K":300,"P":26,"C":30,"F":8},
     {"name":"Egg White & Roasted Red Pepper Egg Bites", "chain":"Starbucks","cuisine":"Cafe","K":170,"P":13,"C":11,"F":7},
-    {"name":"Turkey Bacon, Cheddar & Egg White Sandwich", "chain":"Starbucks","cuisine":"Cafe","K":230,"P":17,"C":28,"F":6},
-    {"name":"Protein Box: Eggs & Gouda (light cheese)", "chain":"Starbucks","cuisine":"Cafe","K":450,"P":28,"C":34,"F":22},
-    {"name":"Oatmeal (plain) + Protein Powder packet (BYO)", "chain":"Starbucks","cuisine":"Cafe","K":300,"P":25,"C":48,"F":4},
     {"name":"6\" Turkey on wheat, double meat, loaded veg, no cheese", "chain":"Subway","cuisine":"Sandwiches","K":420,"P":34,"C":54,"F":8},
-    {"name":"Protein Bowl: Rotisserie Chicken + Veg", "chain":"Subway","cuisine":"Sandwiches","K":310,"P":36,"C":16,"F":10},
-    {"name":"6\" Chicken Teriyaki on wheat, lite sauce", "chain":"Subway","cuisine":"Sandwiches","K":460,"P":31,"C":62,"F":7},
-    {"name":"Double Chicken Chopped Salad (no cheese)", "chain":"Subway","cuisine":"Sandwiches","K":240,"P":38,"C":10,"F":5},
     {"name":"Bowl: Grilled Teriyaki Chicken + Super Greens", "chain":"Panda Express","cuisine":"Chinese","K":420,"P":36,"C":26,"F":18},
-    {"name":"Plate: String Bean Chicken + Super Greens", "chain":"Panda Express","cuisine":"Chinese","K":360,"P":27,"C":22,"F":17},
-    {"name":"Bowl: Broccoli Beef + Mixed Veg", "chain":"Panda Express","cuisine":"Chinese","K":370,"P":24,"C":25,"F":17},
-    {"name":"Greek yogurt (2 cups) + berries + 1 tbsp honey", "chain":"Grocery","cuisine":"Any","K":360,"P":35,"C":46,"F":3},
-    {"name":"Rotisserie chicken (8 oz) + bagged salad", "chain":"Grocery","cuisine":"Any","K":520,"P":60,"C":14,"F":24},
-    {"name":"Canned tuna (2 cans) + rice cup + salsa", "chain":"Grocery","cuisine":"Any","K":540,"P":58,"C":54,"F":8},
-    {"name":"Protein bar (~200 kcal) + banana", "chain":"Grocery","cuisine":"Any","K":300,"P":20,"C":38,"F":7},
-    {"name":"Eggs (4) + instant oats cup", "chain":"Grocery","cuisine":"Any","K":430,"P":30,"C":46,"F":14},
 ]
+
+EXTERNAL_MENU = load_menu()  # pulls data/menu.json or MENU_CSV_URL (if set)
+MENU: List[Dict[str, Any]] = merged_menu(SEED_MENU, EXTERNAL_MENU)
 
 # -----------------------------
 # Energy, macros, and helpers
