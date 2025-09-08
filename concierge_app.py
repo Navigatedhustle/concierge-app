@@ -112,6 +112,72 @@ SEED_MENU: List[Dict[str, Any]] = [
     {"name":"Egg White & Roasted Red Pepper Egg Bites", "chain":"Starbucks","cuisine":"Cafe","K":170,"P":13,"C":11,"F":7},
     {"name":"6\" Turkey on wheat, double meat, loaded veg, no cheese", "chain":"Subway","cuisine":"Sandwiches","K":420,"P":34,"C":54,"F":8},
     {"name":"Bowl: Grilled Teriyaki Chicken + Super Greens", "chain":"Panda Express","cuisine":"Chinese","K":420,"P":36,"C":26,"F":18},
+    {"name":"Lifestyle Bowl: double chicken, white rice, black beans, tomatillo, lettuce, guac", "chain":"Chipotle","cuisine":"Mexican","K":760,"P":65,"C":66,"F":24},
+    {"name":"Footlong Turkey (double meat) on wheat, cheese, full condiments", "chain":"Subway","cuisine":"Sandwiches","K":720,"P":55,"C":78,"F":20},
+    {"name":"Orange Chicken + Super Greens (plate) + extra chicken", "chain":"Panda Express","cuisine":"Chinese","K":780,"P":45,"C":75,"F":30},
+    {"name":"Grilled Chicken Club Sandwich + small fries", "chain":"Chick-fil-A","cuisine":"American","K":830,"P":44,"C":74,"F":39},
+    {"name":"Protein smoothie: whey double scoop + peanut butter + banana + oats (16 oz)", "chain":"Grocery","cuisine":"Any","K":700,"P":55,"C":70,"F":22}
+    {"name":"Lifestyle Bowl: double chicken, white rice, black beans, tomatillo, lettuce, guac", "chain":"Chipotle","cuisine":"Mexican","K":760,"P":65,"C":66,"F":24},
+    {"name":"Steak Bowl: extra steak, white rice, fajita veggies, mild salsa", "chain":"Chipotle","cuisine":"Mexican","K":700,"P":55,"C":60,"F":22},
+    {"name":"Keto Bowl: double chicken, fajita veg, cheese, sour cream (no rice/beans)", "chain":"Chipotle","cuisine":"Mexican","K":520,"P":60,"C":16,"F":22},
+
+    {"name":"Grilled Chicken Club Sandwich + small fries", "chain":"Chick-fil-A","cuisine":"American","K":830,"P":44,"C":74,"F":39},
+    {"name":"Grilled Chicken Sandwich + Fruit Cup", "chain":"Chick-fil-A","cuisine":"American","K":520,"P":35,"C":65,"F":10},
+    {"name":"Cobb Salad (grilled) + lite dressing", "chain":"Chick-fil-A","cuisine":"American","K":510,"P":40,"C":28,"F":24},
+    {"name":"12ct Grilled Nuggets + Greek Yogurt Parfait", "chain":"Chick-fil-A","cuisine":"American","K":540,"P":52,"C":45,"F":12},
+
+    {"name":"Protein Oatmeal: oatmeal + whey packet + banana", "chain":"Starbucks","cuisine":"Cafe","K":560,"P":32,"C":82,"F":12},
+    {"name":"Turkey Bacon Cheddar Egg White Sandwich + plain oatmeal", "chain":"Starbucks","cuisine":"Cafe","K":530,"P":30,"C":65,"F":14},
+    {"name":"Double-Smoked Bacon & Cheddar Sandwich", "chain":"Starbucks","cuisine":"Cafe","K":500,"P":25,"C":45,"F":25},
+
+    {"name":"Footlong Turkey (double meat) on wheat, loaded veg", "chain":"Subway","cuisine":"Sandwiches","K":720,"P":55,"C":78,"F":20},
+    {"name":"Footlong Rotisserie Chicken, no mayo", "chain":"Subway","cuisine":"Sandwiches","K":760,"P":60,"C":86,"F":16},
+    {"name":"Protein Bowl: double chicken + extra veg", "chain":"Subway","cuisine":"Sandwiches","K":480,"P":60,"C":20,"F":14},
+
+    {"name":"Plate: Grilled Teriyaki Chicken + Super Greens + Mushroom Chicken", "chain":"Panda Express","cuisine":"Chinese","K":780,"P":54,"C":45,"F":32},
+    {"name":"Bowl: Shanghai Angus Steak + Super Greens", "chain":"Panda Express","cuisine":"Chinese","K":520,"P":26,"C":30,"F":24},
+    {"name":"Orange Chicken (1 entree) + Super Greens bowl", "chain":"Panda Express","cuisine":"Chinese","K":600,"P":26,"C":46,"F":28},
+
+    {"name":"Power Menu Bowl (Chicken)", "chain":"Taco Bell","cuisine":"Mexican","K":480,"P":26,"C":50,"F":17},
+    {"name":"2x Chicken Soft Taco (fresco) + Bean Burrito (fresco)", "chain":"Taco Bell","cuisine":"Mexican","K":820,"P":40,"C":110,"F":22},
+
+    {"name":"Burrito Bowl: double chicken, rice + beans, salsa, lettuce", "chain":"QDOBA","cuisine":"Mexican","K":780,"P":65,"C":70,"F":22},
+    {"name":"Chicken Burrito (no queso) + extra chicken", "chain":"QDOBA","cuisine":"Mexican","K":790,"P":60,"C":84,"F":20},
+
+    {"name":"Quarter Pounder (no cheese) + side salad (no dressing)", "chain":"McDonald's","cuisine":"American","K":530,"P":30,"C":40,"F":25},
+    {"name":"2x Egg McMuffin (no cheese)", "chain":"McDonald's","cuisine":"American","K":500,"P":32,"C":60,"F":18},
+    {"name":"McDouble + apple slices", "chain":"McDonald's","cuisine":"American","K":460,"P":24,"C":44,"F":20},
+
+    {"name":"Grilled Chicken Sandwich + plain baked potato", "chain":"Wendy's","cuisine":"American","K":680,"P":45,"C":93,"F":12},
+    {"name":"Large Chili + Grilled Chicken Wrap", "chain":"Wendy's","cuisine":"American","K":670,"P":52,"C":63,"F":19},
+
+    {"name":"Green Goddess Cobb with Chicken (full)", "chain":"Panera","cuisine":"American","K":500,"P":40,"C":30,"F":23},
+    {"name":"Turkey Avocado BLT (half) + Turkey Chili (cup)", "chain":"Panera","cuisine":"American","K":720,"P":45,"C":60,"F":28},
+
+    {"name":"Grilled Chicken breast + corn + green beans", "chain":"KFC","cuisine":"American","K":460,"P":50,"C":45,"F":9},
+    {"name":"Blackened Tenders (5) + Red Beans & Rice", "chain":"Popeyes","cuisine":"American","K":610,"P":45,"C":54,"F":20},
+
+    {"name":"Single ShackBurger + side salad", "chain":"Shake Shack","cuisine":"American","K":700,"P":33,"C":48,"F":40},
+    {"name":"Little Hamburger + small fries (shared half)", "chain":"Five Guys","cuisine":"American","K":900,"P":35,"C":60,"F":50},
+
+    {"name":"Hot Bar: grilled salmon (8 oz) + brown rice cup + broccoli", "chain":"Whole Foods","cuisine":"Any","K":750,"P":50,"C":60,"F":24},
+    {"name":"Chicken Avocado Salad + Greek yogurt", "chain":"Pret a Manger","cuisine":"Cafe","K":620,"P":38,"C":40,"F":26},
+
+    {"name":"Protein Smoothie: whey double scoop + peanut butter + banana + oats", "chain":"Grocery","cuisine":"Any","K":700,"P":55,"C":70,"F":22},
+    {"name":"Greek yogurt (2 cups) + 1/2 cup granola + 1 tbsp honey", "chain":"Grocery","cuisine":"Any","K":610,"P":40,"C":80,"F":12},
+    {"name":"Cottage cheese (2 cups) + berries + mixed nuts (1 oz)", "chain":"Grocery","cuisine":"Any","K":520,"P":45,"C":40,"F":18},
+    {"name":"Rotisserie chicken (10 oz) + microwave potato", "chain":"Grocery","cuisine":"Any","K":680,"P":75,"C":50,"F":18},
+    {"name":"2 cans tuna + avocado + 2 whole-wheat wraps", "chain":"Grocery","cuisine":"Any","K":640,"P":55,"C":50,"F":22},
+    {"name":"Jerky (3 oz) + trail mix (1 oz) + apple", "chain":"Grocery","cuisine":"Any","K":520,"P":35,"C":50,"F":18},
+    {"name":"Protein oatmeal: oats + whey + peanut butter", "chain":"Grocery","cuisine":"Any","K":560,"P":40,"C":55,"F":16},
+    {"name":"High-protein frozen burrito", "chain":"Grocery","cuisine":"Any","K":450,"P":33,"C":50,"F":12},
+    {"name":"Sushi: 2x spicy tuna rolls", "chain":"Grocery","cuisine":"Any","K":640,"P":34,"C":80,"F":18},
+
+    {"name":"Fairlife 42g shake + 2 bananas + nut pack (1 oz)", "chain":"Gas Station","cuisine":"Any","K":600,"P":42,"C":95,"F":15},
+
+    {"name":"Egg-white veggie omelette + fruit + dry toast", "chain":"IHOP","cuisine":"American","K":620,"P":45,"C":68,"F":14},
+    {"name":"Fit Slam: egg whites + turkey bacon + English muffin + fruit", "chain":"Denny's","cuisine":"American","K":650,"P":40,"C":70,"F":20}
+
 ]
 
 EXTERNAL_MENU = load_menu()  # pulls data/menu.json or MENU_CSV_URL (if set)
