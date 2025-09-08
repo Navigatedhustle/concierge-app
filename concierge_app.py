@@ -281,7 +281,7 @@ class PlanDay:
     items: List[Dict[str, Any]]
     K: int; P: int; C: int; F: int
 
-DEFAULT_MEALS_PER_DAY = 3
+DEFAULT_MEALS_PER_DAY = 4
 
 def score_combo(picks: List[Dict[str, Any]], cal_target: int, p_target: int, c_target: int, f_target: int) -> Tuple[float, Dict[str, float]]:
     K = sum(x["K"] for x in picks); P = sum(x["P"] for x in picks); C = sum(x["C"] for x in picks); F = sum(x["F"] for x in picks)
