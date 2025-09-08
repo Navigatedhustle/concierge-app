@@ -115,7 +115,7 @@ SEED_MENU: List[Dict[str, Any]] = [
     {"name":"Footlong Turkey (double meat) on wheat, cheese, full condiments", "chain":"Subway","cuisine":"Sandwiches","K":720,"P":55,"C":78,"F":20},
     {"name":"Orange Chicken + Super Greens (plate) + extra chicken", "chain":"Panda Express","cuisine":"Chinese","K":780,"P":45,"C":75,"F":30},
     {"name":"Grilled Chicken Club Sandwich + small fries", "chain":"Chick-fil-A","cuisine":"American","K":830,"P":44,"C":74,"F":39},
-    {"name":"Protein smoothie: whey double scoop + peanut butter + banana + oats (16 oz)", "chain":"Grocery","cuisine":"Any","K":700,"P":55,"C":70,"F":22}
+    {"name":"Protein smoothie: whey double scoop + peanut butter + banana + oats (16 oz)", "chain":"Grocery","cuisine":"Any","K":700,"P":55,"C":70,"F":22},
     {"name":"Lifestyle Bowl: double chicken, white rice, black beans, tomatillo, lettuce, guac", "chain":"Chipotle","cuisine":"Mexican","K":760,"P":65,"C":66,"F":24},
     {"name":"Steak Bowl: extra steak, white rice, fajita veggies, mild salsa", "chain":"Chipotle","cuisine":"Mexican","K":700,"P":55,"C":60,"F":22},
     {"name":"Keto Bowl: double chicken, fajita veg, cheese, sour cream (no rice/beans)", "chain":"Chipotle","cuisine":"Mexican","K":520,"P":60,"C":16,"F":22},
