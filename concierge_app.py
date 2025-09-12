@@ -5,7 +5,7 @@
 # - Optional CSP header for embedding in GHL (edit domain below)
 
 from __future__ import annotations
-import os, json, random, argparse, datetime, pathlib, csv, io
+import os, json, random, argparse, datetime, pathlib
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -28,11 +28,13 @@ app = Flask(__name__)
 # ---- Embed header (set your membership domain here) ----
 @app.after_request
 def add_embed_headers(resp):
-    # TODO: replace with your actual membership domain(s)
-    # Example: resp.headers["Content-Security-Policy"] = "frame-ancestors 'self' https://members.yourdomain.com"
+    # Example:
+    # resp.headers["Content-Security-Policy"] = "frame-ancestors 'self' https://members.yourdomain.com"
     return resp
 
 # ---------- MENU LOADING ----------
+import csv, io
+
 MENU_PATH = os.environ.get("MENU_PATH", "data/menu.json")  # local file in repo
 MENU_CSV_URL = os.environ.get("MENU_CSV_URL")              # published CSV URL (optional)
 ADMIN_RELOAD_KEY = os.environ.get("ADMIN_RELOAD_KEY", "change-me")
@@ -115,7 +117,6 @@ SEED_MENU: List[Dict[str, Any]] = [
     {"name":"Steak Bowl: extra steak, white rice, fajita veggies, mild salsa", "chain":"Chipotle","cuisine":"Mexican","K":700,"P":55,"C":60,"F":22},
     {"name":"Keto Bowl: double chicken, fajita veg, cheese, sour cream (no rice/beans)", "chain":"Chipotle","cuisine":"Mexican","K":520,"P":60,"C":16,"F":22},
 
-    {"name":"Grilled Chicken Club Sandwich + small fries", "chain":"Chick-fil-A","cuisine":"American","K":830,"P":44,"C":74,"F":39},
     {"name":"Grilled Chicken Sandwich + Fruit Cup", "chain":"Chick-fil-A","cuisine":"American","K":520,"P":35,"C":65,"F":10},
     {"name":"Cobb Salad (grilled) + lite dressing", "chain":"Chick-fil-A","cuisine":"American","K":510,"P":40,"C":28,"F":24},
     {"name":"12ct Grilled Nuggets + Greek Yogurt Parfait", "chain":"Chick-fil-A","cuisine":"American","K":540,"P":52,"C":45,"F":12},
@@ -124,7 +125,6 @@ SEED_MENU: List[Dict[str, Any]] = [
     {"name":"Turkey Bacon Cheddar Egg White Sandwich + plain oatmeal", "chain":"Starbucks","cuisine":"Cafe","K":530,"P":30,"C":65,"F":14},
     {"name":"Double-Smoked Bacon & Cheddar Sandwich", "chain":"Starbucks","cuisine":"Cafe","K":500,"P":25,"C":45,"F":25},
 
-    {"name":"Footlong Turkey (double meat) on wheat, loaded veg", "chain":"Subway","cuisine":"Sandwiches","K":720,"P":55,"C":78,"F":20},
     {"name":"Footlong Rotisserie Chicken, no mayo", "chain":"Subway","cuisine":"Sandwiches","K":760,"P":60,"C":86,"F":16},
     {"name":"Protein Bowl: double chicken + extra veg", "chain":"Subway","cuisine":"Sandwiches","K":480,"P":60,"C":20,"F":14},
 
@@ -171,8 +171,7 @@ SEED_MENU: List[Dict[str, Any]] = [
 
     {"name":"Egg-white veggie omelette + fruit + dry toast", "chain":"IHOP","cuisine":"American","K":620,"P":45,"C":68,"F":14},
     {"name":"Fit Slam: egg whites + turkey bacon + English muffin + fruit", "chain":"Denny's","cuisine":"American","K":650,"P":40,"C":70,"F":20},
-
-    # ---- High-calorie additions ----
+        # ---- High-calorie additions ----
     {"name":"Double Chicken Burrito + rice, beans, queso, guac", "chain":"Chipotle","cuisine":"Mexican","K":1150,"P":72,"C":108,"F":42},
     {"name":"Double Steak Bowl + white rice, black beans, queso, guac", "chain":"Chipotle","cuisine":"Mexican","K":1000,"P":66,"C":86,"F":35},
     {"name":"Carnitas Burrito + queso + guac", "chain":"Chipotle","cuisine":"Mexican","K":1200,"P":52,"C":110,"F":55},
@@ -223,6 +222,7 @@ SEED_MENU: List[Dict[str, Any]] = [
 
     {"name":"Protein Pancakes stack + eggs + turkey bacon", "chain":"IHOP","cuisine":"American","K":1050,"P":55,"C":120,"F":34},
     {"name":"Fit Slam + French toast (single slice)", "chain":"Denny's","cuisine":"American","K":1010,"P":48,"C":120,"F":28},
+
 ]
 
 EXTERNAL_MENU = load_menu()  # pulls data/menu.json or MENU_CSV_URL (if set)
@@ -317,8 +317,8 @@ def generate_plan(calories: int, cuisine: Optional[str], chain: Optional[str], d
         plan_days.append(PlanDay(items=picks, K=int(meta["K"]), P=int(meta["P"]), C=int(meta["C"]), F=int(meta["F"])))
     return {
         "days": days, "cuisine": cuisine, "chain": chain,
-        "protein_target": p_target, "carb_target": c_target, "fat_target": f_target,
         "meals_per_day": meals_per_day,
+        "protein_target": p_target, "carb_target": c_target, "fat_target": f_target,
         "plan": [{"items": d.items, "K": d.K, "P": d.P, "C": d.C, "F": d.F} for d in plan_days]
     }
 
@@ -369,6 +369,15 @@ button{padding:10px 14px; border-radius:12px; background:var(--accent); color:#0
         <input type="number" name="days" value="{{ req.get('days',3) }}" min="1" max="7">
       </div>
 
+      <div>
+        <label>Meals per day</label>
+        <select name="meals_per_day">
+          <option value="2" {% if req.get('meals_per_day','4')=='2' %}selected{% endif %}>2</option>
+          <option value="3" {% if req.get('meals_per_day','4')=='3' %}selected{% endif %}>3</option>
+          <option value="4" {% if req.get('meals_per_day','4')=='4' %}selected{% endif %}>4</option>
+        </select>
+      </div>
+
       <div style="grid-column:1/-1;">
         <label>Don’t know your TDEE? Estimate from stats</label>
         <div class="grid g3">
@@ -377,7 +386,7 @@ button{padding:10px 14px; border-radius:12px; background:var(--accent); color:#0
             <option value="male"   {% if req.get('sex')=='male' %}selected{% endif %}>Male</option>
             <option value="female" {% if req.get('sex')=='female' %}selected{% endif %}>Female</option>
           </select>
-          <input name="age" type="number" placeholder="Age" min="10" max="90" value="{{ req.get('age','') }}">
+          <input name="age" type="number" placeholder="Age" value="{{ req.get('age','') }}">
           <select name="activity">
             <option value="sedentary" {% if req.get('activity')=='sedentary' %}selected{% endif %}>Sedentary</option>
             <option value="light"     {% if req.get('activity')=='light' %}selected{% endif %}>Light</option>
@@ -388,22 +397,9 @@ button{padding:10px 14px; border-radius:12px; background:var(--accent); color:#0
         </div>
         <div class="grid g3" style="margin-top:8px;">
           <input name="weight_lb" type="number" step="0.1" min="60" max="600" placeholder="Weight (lb)" required value="{{ req.get('weight_lb','') }}">
-          <input name="height_in" type="number" step="0.1" min="48" max="84" placeholder="Height (in)" value="{{ req.get('height_in','') }}">
-          <div class="muted small" style="align-self:center;">We'll estimate if TDEE is blank. Protein = <span class="kbd">1.0 g/lb</span>.</div>
+          <input name="height_in" type="number" step="0.1" placeholder="Height (in)" value="{{ req.get('height_in','') }}">
+          <div class="muted small" style="align-self:center;">Protein target uses 1.0 g/lb. We'll estimate calories if TDEE is blank.</div>
         </div>
-      </div>
-
-      <div>
-        <label>Meals per day</label>
-        <select name="meals_per_day">
-          <option value="2" {% if req.get('meals_per_day','4')=='2' %}selected{% endif %}>2</option>
-          <option value="4" {% if req.get('meals_per_day','4')=='4' %}selected{% endif %}>4</option>
-        </select>
-      </div>
-
-      <div>
-        <label>Protein target</label>
-        <input type="text" value="1.0 g per lb of body weight (auto)" readonly>
       </div>
 
       <div>
@@ -414,7 +410,6 @@ button{padding:10px 14px; border-radius:12px; background:var(--accent); color:#0
         <label>Cuisine (optional)</label>
         <input name="cuisine" placeholder="e.g., Mexican" value="{{ req.get('cuisine','') }}">
       </div>
-
       <div style="display:flex; align-items:end; gap:8px;">
         <button type="submit">Generate Plan</button>
         <a href="{{ url_for('seed_sample_route') }}" class="underline muted small" title="View sample items">View sample items</a>
@@ -529,7 +524,7 @@ def write_pdf_plan(path: str, plan: Dict[str, Any], calories: int):
     story = []
     title = f"{APP_NAME} — {datetime.datetime.now().strftime('%Y-%m-%d')}"
     kicker = f"Target: {calories} kcal/day • Protein {plan['protein_target']}g • Carbs {plan['carb_target']}g • Fat {plan['fat_target']}g"
-    meta = f"Filters: cuisine={plan['cuisine'] or 'Any'} • chain={plan['chain'] or 'Any'} • meals/day={plan.get('meals_per_day', 4)}"
+    meta = f"Filters: cuisine={plan['cuisine'] or 'Any'} • chain={plan['chain'] or 'Any'}"
     header_tbl = Table([[Paragraph(title, styles["H1"])]],[6.5*inch])
     header_tbl.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,-1),colors.HexColor("#68b5ff")),("LEFTPADDING",(0,0),(-1,-1),12),
                                     ("RIGHTPADDING",(0,0),(-1,-1),12),("TOPPADDING",(0,0),(-1,-1),10),("BOTTOMPADDING",(0,0),(-1,-1),10),
@@ -565,12 +560,12 @@ def _resolve_from_request(req):
     activity = req.get("activity", "moderate")
     cuisine = req.get("cuisine") or None; chain = req.get("chain") or None; days = int(req.get("days", 3))
 
-    # meals/day from UI (only 2 or 4 accepted)
+    # Meals per day from UI (allow 2,3,4)
     try:
         meals_per_day = int(req.get("meals_per_day", DEFAULT_MEALS_PER_DAY))
     except Exception:
         meals_per_day = DEFAULT_MEALS_PER_DAY
-    if meals_per_day not in (2, 4):
+    if meals_per_day not in (2,3,4):
         meals_per_day = DEFAULT_MEALS_PER_DAY
 
     meta_note = None
@@ -589,14 +584,14 @@ def _resolve_from_request(req):
     except Exception:
         calories_resolved = 2000; meta_note = "Invalid inputs; defaulted to 2000 kcal"
 
-    # Fixed protein rule: 1.0 g/lb (weight required in UI; if missing, we still handle gracefully)
+    # Fixed 1.0 g/lb protein target
     try:
         bw = float(weight_lb) if weight_lb else None
         protein_g = int(round(bw)) if bw else None
     except Exception:
         protein_g = None
 
-    data = generate_plan(calories_resolved, cuisine, chain, days, protein_g, meals_per_day=meals_per_day)
+    data = generate_plan(calories_resolved, cuisine, chain, days, protein_g, meals_per_day)
     data["_meta"] = {"note": meta_note}
     return data, calories_resolved
 
@@ -647,7 +642,7 @@ def write_html_plan(path: str, plan: Dict[str, Any], calories: int):
     """
     header = f"<div class='hdr'>{APP_NAME} — {datetime.datetime.now().strftime('%Y-%m-%d')}</div>"
     kicker = f"<div class='meta'>Target: {calories} kcal/day • Protein {plan['protein_target']}g • Carbs {plan['carb_target']}g • Fat {plan['fat_target']}g</div>"
-    filt = f"<div class='meta'>Filters: cuisine={plan['cuisine'] or 'Any'} • chain={plan['chain'] or 'Any'} • meals/day={plan.get('meals_per_day', 4)}</div>"
+    filt = f"<div class='meta'>Filters: cuisine={plan['cuisine'] or 'Any'} • chain={plan['chain'] or 'Any'}</div>"
     parts = [f"<!doctype html><meta charset='utf-8'><title>Plan</title>{style}", header, kicker, filt]
     for i, d in enumerate(plan["plan"], 1):
         parts.append(f"<div class='day'><b>Day {i}</b> <span class='meta'>Totals: {d['K']} kcal • {d['P']}g P • {d['C']}g C • {d['F']}g F</span>")
@@ -661,7 +656,7 @@ def write_html_plan(path: str, plan: Dict[str, Any], calories: int):
         f.write(html)
 
 def headless_export(calories: int, cuisine: Optional[str], chain: Optional[str], days: int, protein_g: Optional[int], meals_per_day: int, out_dir: str) -> Dict[str, str]:
-    plan = generate_plan(calories, cuisine, chain, days, protein_g, meals_per_day=meals_per_day)
+    plan = generate_plan(calories, cuisine, chain, days, protein_g, meals_per_day)
     out = pathlib.Path(out_dir); out.mkdir(parents=True, exist_ok=True)
     stamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S"); base = out / f"concierge_plan_{stamp}"
     files = {"json": str(base.with_suffix(".json")), "pdf": str(base.with_suffix(".pdf")), "html": str(base.with_suffix(".html"))}
@@ -678,40 +673,23 @@ def headless_export(calories: int, cuisine: Optional[str], chain: Optional[str],
 # -----------------------------
 def main_cli():
     parser = argparse.ArgumentParser(description="Concierge Meal Generator")
-    parser.add_argument("--host", default="0.0.0.0")
-    parser.add_argument("--port", type=int, default=int(os.environ.get("PORT", 5000)))
+    parser.add_argument("--host", default="0.0.0.0"); parser.add_argument("--port", type=int, default=int(os.environ.get("PORT", 5000)))
     parser.add_argument("--debug", action="store_true")
-    parser.add_argument("--headless", action="store_true")
-    parser.add_argument("--out", type=str, default="artifacts")
-
-    parser.add_argument("--calories", type=int, default=None)
-    parser.add_argument("--tdee", type=int, default=None)
-    parser.add_argument("--goal", type=str, default="loss25")
-
-    parser.add_argument("--sex", type=str, default=None)
-    parser.add_argument("--weight_lb", type=float, default=None)
-    parser.add_argument("--height_in", type=float, default=None)
-    parser.add_argument("--age", type=int, default=None)
-    parser.add_argument("--activity", type=str, default="moderate")
-
-    parser.add_argument("--cuisine", type=str, default=None)
-    parser.add_argument("--chain", type=str, default=None)
-    parser.add_argument("--days", type=int, default=3)
-
-    # NEW: meals/day selection for headless
-    parser.add_argument("--meals_per_day", type=int, choices=[2,4], default=4)
-
+    parser.add_argument("--headless", action="store_true"); parser.add_argument("--out", type=str, default="artifacts")
+    parser.add_argument("--calories", type=int, default=None); parser.add_argument("--tdee", type=int, default=None); parser.add_argument("--goal", type=str, default="loss25")
+    parser.add_argument("--sex", type=str, default=None); parser.add_argument("--weight_lb", type=float, default=None); parser.add_argument("--height_in", type=float, default=None)
+    parser.add_argument("--age", type=int, default=None); parser.add_argument("--activity", type=str, default="moderate")
+    parser.add_argument("--cuisine", type=str, default=None); parser.add_argument("--chain", type=str, default=None); parser.add_argument("--days", type=int, default=3)
+    parser.add_argument("--meals_per_day", type=int, choices=[2,3,4], default=DEFAULT_MEALS_PER_DAY)
     args = parser.parse_args()
 
     if not args.headless:
-        app.run(host=args.host, port=args.port, debug=args.debug)
-        return
+        app.run(host=args.host, port=args.port, debug=args.debug); return
 
-    # Resolve calories
-    if args.calories is not None:
+    if args.calories:
         calories_resolved = int(args.calories)
     else:
-        if args.tdee is not None:
+        if args.tdee:
             tdee = int(args.tdee)
         elif all([args.sex, args.weight_lb, args.height_in, args.age]):
             tdee = calc_tdee_from_stats(args.sex, float(args.weight_lb), float(args.height_in), int(args.age), args.activity)
@@ -719,16 +697,14 @@ def main_cli():
             tdee = 2000
         calories_resolved = calorie_goal_from_tdee(tdee, args.goal)
 
-    # Fixed 1.0 g/lb target
+    # Fixed 1.0 g/lb for CLI too
     protein_resolved = int(round(args.weight_lb)) if args.weight_lb else None
 
     files = headless_export(calories_resolved, args.cuisine, args.chain, args.days, protein_resolved, args.meals_per_day, args.out)
-    print("Headless export complete:")
-    for k, v in files.items():
-        print(f"  {k}: {v}")
-    if not REPORTLAB_AVAILABLE:
-        print("\nNOTE: PDF not generated (ReportLab missing). Install with: pip install reportlab")
+    print("Headless export complete:"); [print(f"  {k}: {v}") for k,v in files.items()]
+    if not REPORTLAB_AVAILABLE: print("\nNOTE: PDF not generated (ReportLab missing). Install with: pip install reportlab")
 
 if __name__ == "__main__":
     main_cli()
+
 
