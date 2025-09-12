@@ -5,7 +5,7 @@
 # - Optional CSP header for embedding in GHL (edit domain below)
 
 from __future__ import annotations
-import os, json, random, argparse, datetime, pathlib
+import os, json, random, argparse, datetime, pathlib, csv, io
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -33,8 +33,6 @@ def add_embed_headers(resp):
     return resp
 
 # ---------- MENU LOADING ----------
-import csv, io
-
 MENU_PATH = os.environ.get("MENU_PATH", "data/menu.json")  # local file in repo
 MENU_CSV_URL = os.environ.get("MENU_CSV_URL")              # published CSV URL (optional)
 ADMIN_RELOAD_KEY = os.environ.get("ADMIN_RELOAD_KEY", "change-me")
@@ -98,7 +96,6 @@ def merged_menu(seed: List[Dict[str, Any]], external: List[Dict[str, Any]]) -> L
     for x in seed: seen[key(x)] = x
     for x in external: seen[key(x)] = x
     return list(seen.values())
-
 
 # -----------------------------
 # Seed menu (expand as you like)
@@ -174,60 +171,58 @@ SEED_MENU: List[Dict[str, Any]] = [
 
     {"name":"Egg-white veggie omelette + fruit + dry toast", "chain":"IHOP","cuisine":"American","K":620,"P":45,"C":68,"F":14},
     {"name":"Fit Slam: egg whites + turkey bacon + English muffin + fruit", "chain":"Denny's","cuisine":"American","K":650,"P":40,"C":70,"F":20},
-    
+
     # ---- High-calorie additions ----
-{"name":"Double Chicken Burrito + rice, beans, queso, guac", "chain":"Chipotle","cuisine":"Mexican","K":1150,"P":72,"C":108,"F":42},
-{"name":"Double Steak Bowl + white rice, black beans, queso, guac", "chain":"Chipotle","cuisine":"Mexican","K":1000,"P":66,"C":86,"F":35},
-{"name":"Carnitas Burrito + queso + guac", "chain":"Chipotle","cuisine":"Mexican","K":1200,"P":52,"C":110,"F":55},
-{"name":"Chicken Quesadilla (large) + guac", "chain":"Chipotle","cuisine":"Mexican","K":900,"P":55,"C":60,"F":45},
-{"name":"Burrito Bowl: double chicken, double rice, beans, queso", "chain":"Chipotle","cuisine":"Mexican","K":1050,"P":70,"C":115,"F":28},
+    {"name":"Double Chicken Burrito + rice, beans, queso, guac", "chain":"Chipotle","cuisine":"Mexican","K":1150,"P":72,"C":108,"F":42},
+    {"name":"Double Steak Bowl + white rice, black beans, queso, guac", "chain":"Chipotle","cuisine":"Mexican","K":1000,"P":66,"C":86,"F":35},
+    {"name":"Carnitas Burrito + queso + guac", "chain":"Chipotle","cuisine":"Mexican","K":1200,"P":52,"C":110,"F":55},
+    {"name":"Chicken Quesadilla (large) + guac", "chain":"Chipotle","cuisine":"Mexican","K":900,"P":55,"C":60,"F":45},
+    {"name":"Burrito Bowl: double chicken, double rice, beans, queso", "chain":"Chipotle","cuisine":"Mexican","K":1050,"P":70,"C":115,"F":28},
 
-{"name":"Spicy Deluxe Sandwich + medium waffle fries", "chain":"Chick-fil-A","cuisine":"American","K":980,"P":36,"C":96,"F":45},
-{"name":"12ct Nuggets (fried) + medium waffle fries", "chain":"Chick-fil-A","cuisine":"American","K":970,"P":44,"C":88,"F":42},
-{"name":"Grilled Chicken Sandwich + Mac & Cheese (medium)", "chain":"Chick-fil-A","cuisine":"American","K":920,"P":45,"C":92,"F":28},
+    {"name":"Spicy Deluxe Sandwich + medium waffle fries", "chain":"Chick-fil-A","cuisine":"American","K":980,"P":36,"C":96,"F":45},
+    {"name":"12ct Nuggets (fried) + medium waffle fries", "chain":"Chick-fil-A","cuisine":"American","K":970,"P":44,"C":88,"F":42},
+    {"name":"Grilled Chicken Sandwich + Mac & Cheese (medium)", "chain":"Chick-fil-A","cuisine":"American","K":920,"P":45,"C":92,"F":28},
 
-{"name":"Footlong Italian B.M.T. (double meat & cheese) on Italian", "chain":"Subway","cuisine":"Sandwiches","K":1040,"P":60,"C":96,"F":44},
-{"name":"Footlong Steak & Cheese (double meat) + full condiments", "chain":"Subway","cuisine":"Sandwiches","K":980,"P":62,"C":90,"F":32},
-{"name":"Protein Bowl: double rotisserie chicken + avocado + rice", "chain":"Subway","cuisine":"Sandwiches","K":900,"P":70,"C":60,"F":32},
+    {"name":"Footlong Italian B.M.T. (double meat & cheese) on Italian", "chain":"Subway","cuisine":"Sandwiches","K":1040,"P":60,"C":96,"F":44},
+    {"name":"Footlong Steak & Cheese (double meat) + full condiments", "chain":"Subway","cuisine":"Sandwiches","K":980,"P":62,"C":90,"F":32},
+    {"name":"Protein Bowl: double rotisserie chicken + avocado + rice", "chain":"Subway","cuisine":"Sandwiches","K":900,"P":70,"C":60,"F":32},
 
-{"name":"Bigger Plate: Orange Chicken + Beijing Beef + Chow Mein", "chain":"Panda Express","cuisine":"Chinese","K":1420,"P":45,"C":150,"F":60},
-{"name":"Plate: Orange Chicken + Honey Sesame Chicken + Fried Rice", "chain":"Panda Express","cuisine":"Chinese","K":1180,"P":40,"C":130,"F":42},
-{"name":"Bowl: Shanghai Angus Steak + Chow Mein", "chain":"Panda Express","cuisine":"Chinese","K":930,"P":34,"C":96,"F":34},
+    {"name":"Bigger Plate: Orange Chicken + Beijing Beef + Chow Mein", "chain":"Panda Express","cuisine":"Chinese","K":1420,"P":45,"C":150,"F":60},
+    {"name":"Plate: Orange Chicken + Honey Sesame Chicken + Fried Rice", "chain":"Panda Express","cuisine":"Chinese","K":1180,"P":40,"C":130,"F":42},
+    {"name":"Bowl: Shanghai Angus Steak + Chow Mein", "chain":"Panda Express","cuisine":"Chinese","K":930,"P":34,"C":96,"F":34},
 
-{"name":"Power Menu Bowl (Chicken) + cheesy fiesta potatoes", "chain":"Taco Bell","cuisine":"Mexican","K":820,"P":30,"C":90,"F":28},
-{"name":"Grilled Cheese Burrito (steak) + Beef Burrito", "chain":"Taco Bell","cuisine":"Mexican","K":1200,"P":55,"C":126,"F":44},
+    {"name":"Power Menu Bowl (Chicken) + cheesy fiesta potatoes", "chain":"Taco Bell","cuisine":"Mexican","K":820,"P":30,"C":90,"F":28},
+    {"name":"Grilled Cheese Burrito (steak) + Beef Burrito", "chain":"Taco Bell","cuisine":"Mexican","K":1200,"P":55,"C":126,"F":44},
 
-{"name":"Burrito: extra chicken + rice + beans + queso + guac", "chain":"QDOBA","cuisine":"Mexican","K":1120,"P":62,"C":104,"F":38},
-{"name":"Burrito Bowl: double steak + queso + guac + tortilla on side", "chain":"QDOBA","cuisine":"Mexican","K":1050,"P":60,"C":95,"F":36},
+    {"name":"Burrito: extra chicken + rice + beans + queso + guac", "chain":"QDOBA","cuisine":"Mexican","K":1120,"P":62,"C":104,"F":38},
+    {"name":"Burrito Bowl: double steak + queso + guac + tortilla on side", "chain":"QDOBA","cuisine":"Mexican","K":1050,"P":60,"C":95,"F":36},
 
-{"name":"Double Quarter Pounder w/ Cheese + medium fries", "chain":"McDonald's","cuisine":"American","K":1290,"P":63,"C":103,"F":62},
-{"name":"Big Mac + 10pc Chicken McNuggets (no fries)", "chain":"McDonald's","cuisine":"American","K":1160,"P":57,"C":96,"F":54},
+    {"name":"Double Quarter Pounder w/ Cheese + medium fries", "chain":"McDonald's","cuisine":"American","K":1290,"P":63,"C":103,"F":62},
+    {"name":"Big Mac + 10pc Chicken McNuggets (no fries)", "chain":"McDonald's","cuisine":"American","K":1160,"P":57,"C":96,"F":54},
 
-{"name":"Dave's Double + plain baked potato (butter packet)", "chain":"Wendy's","cuisine":"American","K":1210,"P":63,"C":96,"F":60},
-{"name":"Baconator (single) + medium chili", "chain":"Wendy's","cuisine":"American","K":1150,"P":64,"C":54,"F":72},
+    {"name":"Dave's Double + plain baked potato (butter packet)", "chain":"Wendy's","cuisine":"American","K":1210,"P":63,"C":96,"F":60},
+    {"name":"Baconator (single) + medium chili", "chain":"Wendy's","cuisine":"American","K":1150,"P":64,"C":54,"F":72},
 
-{"name":"Chipotle Chicken Avocado Melt + Mac & Cheese (cup)", "chain":"Panera","cuisine":"American","K":1170,"P":52,"C":98,"F":56},
-{"name":"Turkey Avocado BLT (whole) + chips", "chain":"Panera","cuisine":"American","K":980,"P":45,"C":90,"F":38},
+    {"name":"Chipotle Chicken Avocado Melt + Mac & Cheese (cup)", "chain":"Panera","cuisine":"American","K":1170,"P":52,"C":98,"F":56},
+    {"name":"Turkey Avocado BLT (whole) + chips", "chain":"Panera","cuisine":"American","K":980,"P":45,"C":90,"F":38},
 
-{"name":"3pc Chicken (mixed) + mashed & gravy + biscuit", "chain":"KFC","cuisine":"American","K":1150,"P":60,"C":90,"F":55},
-{"name":"5 Blackened Tenders + large Red Beans & Rice + biscuit", "chain":"Popeyes","cuisine":"American","K":1020,"P":55,"C":98,"F":34},
+    {"name":"3pc Chicken (mixed) + mashed & gravy + biscuit", "chain":"KFC","cuisine":"American","K":1150,"P":60,"C":90,"F":55},
+    {"name":"5 Blackened Tenders + large Red Beans & Rice + biscuit", "chain":"Popeyes","cuisine":"American","K":1020,"P":55,"C":98,"F":34},
 
-{"name":"Double ShackBurger + fries (share half)", "chain":"Shake Shack","cuisine":"American","K":1200,"P":50,"C":90,"F":65},
-{"name":"Cheeseburger + little fries (share half)", "chain":"Five Guys","cuisine":"American","K":1250,"P":45,"C":85,"F":72},
+    {"name":"Double ShackBurger + fries (share half)", "chain":"Shake Shack","cuisine":"American","K":1200,"P":50,"C":90,"F":65},
+    {"name":"Cheeseburger + little fries (share half)", "chain":"Five Guys","cuisine":"American","K":1250,"P":45,"C":85,"F":72},
 
-{"name":"Hot Bar: grilled salmon (10 oz) + olive oil drizzle + rice cup", "chain":"Whole Foods","cuisine":"Any","K":1050,"P":62,"C":70,"F":50},
-{"name":"Chicken & Pesto Pasta (large) + side Caesar", "chain":"Whole Foods","cuisine":"Any","K":1120,"P":55,"C":110,"F":42},
+    {"name":"Hot Bar: grilled salmon (10 oz) + olive oil drizzle + rice cup", "chain":"Whole Foods","cuisine":"Any","K":1050,"P":62,"C":70,"F":50},
+    {"name":"Chicken & Pesto Pasta (large) + side Caesar", "chain":"Whole Foods","cuisine":"Any","K":1120,"P":55,"C":110,"F":42},
 
-{"name":"Mass-gainer smoothie: whole milk, whey double, PB, oats, banana", "chain":"Grocery","cuisine":"Any","K":1000,"P":65,"C":110,"F":30},
-{"name":"Big burrito bowl + tortilla chips & guacamole", "chain":"Grocery","cuisine":"Any","K":1080,"P":48,"C":105,"F":42},
-{"name":"Chicken Alfredo (microwave tray, ~16 oz)", "chain":"Grocery","cuisine":"Any","K":980,"P":50,"C":72,"F":50},
+    {"name":"Mass-gainer smoothie: whole milk, whey double, PB, oats, banana", "chain":"Grocery","cuisine":"Any","K":1000,"P":65,"C":110,"F":30},
+    {"name":"Big burrito bowl + tortilla chips & guacamole", "chain":"Grocery","cuisine":"Any","K":1080,"P":48,"C":105,"F":42},
+    {"name":"Chicken Alfredo (microwave tray, ~16 oz)", "chain":"Grocery","cuisine":"Any","K":980,"P":50,"C":72,"F":50},
 
-{"name":"Fairlife 42g shakes (2) + trail mix (1.5 oz)", "chain":"Gas Station","cuisine":"Any","K":980,"P":84,"C":60,"F":36},
+    {"name":"Fairlife 42g shakes (2) + trail mix (1.5 oz)", "chain":"Gas Station","cuisine":"Any","K":980,"P":84,"C":60,"F":36},
 
-{"name":"Protein Pancakes stack + eggs + turkey bacon", "chain":"IHOP","cuisine":"American","K":1050,"P":55,"C":120,"F":34},
-{"name":"Fit Slam + French toast (single slice)", "chain":"Denny's","cuisine":"American","K":1010,"P":48,"C":120,"F":28},
-
-
+    {"name":"Protein Pancakes stack + eggs + turkey bacon", "chain":"IHOP","cuisine":"American","K":1050,"P":55,"C":120,"F":34},
+    {"name":"Fit Slam + French toast (single slice)", "chain":"Denny's","cuisine":"American","K":1010,"P":48,"C":120,"F":28},
 ]
 
 EXTERNAL_MENU = load_menu()  # pulls data/menu.json or MENU_CSV_URL (if set)
@@ -258,7 +253,6 @@ def calorie_goal_from_tdee(tdee: int, goal: str) -> int:
     if goal == "maintain": return int(round(tdee))
     if goal == "gain10": return int(round(tdee * 1.10))
     return int(round(tdee * 0.75))
-
 
 # ---------------
 # Plan generator
@@ -324,6 +318,7 @@ def generate_plan(calories: int, cuisine: Optional[str], chain: Optional[str], d
     return {
         "days": days, "cuisine": cuisine, "chain": chain,
         "protein_target": p_target, "carb_target": c_target, "fat_target": f_target,
+        "meals_per_day": meals_per_day,
         "plan": [{"items": d.items, "K": d.K, "P": d.P, "C": d.C, "F": d.F} for d in plan_days]
     }
 
@@ -376,17 +371,13 @@ button{padding:10px 14px; border-radius:12px; background:var(--accent); color:#0
 
       <div style="grid-column:1/-1;">
         <label>Don’t know your TDEE? Estimate from stats</label>
-
-        <!-- Row 1: sex, age, activity -->
         <div class="grid g3">
           <select name="sex">
             <option value="">Sex</option>
             <option value="male"   {% if req.get('sex')=='male' %}selected{% endif %}>Male</option>
             <option value="female" {% if req.get('sex')=='female' %}selected{% endif %}>Female</option>
           </select>
-
-          <input name="age" type="number" placeholder="Age" value="{{ req.get('age','') }}">
-
+          <input name="age" type="number" placeholder="Age" min="10" max="90" value="{{ req.get('age','') }}">
           <select name="activity">
             <option value="sedentary" {% if req.get('activity')=='sedentary' %}selected{% endif %}>Sedentary</option>
             <option value="light"     {% if req.get('activity')=='light' %}selected{% endif %}>Light</option>
@@ -395,25 +386,24 @@ button{padding:10px 14px; border-radius:12px; background:var(--accent); color:#0
             <option value="athlete"   {% if req.get('activity')=='athlete' %}selected{% endif %}>Athlete</option>
           </select>
         </div>
-
-        <!-- Row 2: weight, height, help text -->
         <div class="grid g3" style="margin-top:8px;">
-          <input name="weight_lb" type="number" step="0.1" min="60" max="600"
-                 placeholder="Weight (lb)" required value="{{ req.get('weight_lb','') }}">
-          <input name="height_in" type="number" step="0.1"
-                 placeholder="Height (in)" value="{{ req.get('height_in','') }}">
-          <div class="muted small" style="align-self:center;">
-            If TDEE is blank, we’ll estimate it. Protein target is fixed at 1.0 g/lb.
-          </div>
+          <input name="weight_lb" type="number" step="0.1" min="60" max="600" placeholder="Weight (lb)" required value="{{ req.get('weight_lb','') }}">
+          <input name="height_in" type="number" step="0.1" min="48" max="84" placeholder="Height (in)" value="{{ req.get('height_in','') }}">
+          <div class="muted small" style="align-self:center;">We'll estimate if TDEE is blank. Protein = <span class="kbd">1.0 g/lb</span>.</div>
         </div>
+      </div>
+
+      <div>
+        <label>Meals per day</label>
+        <select name="meals_per_day">
+          <option value="2" {% if req.get('meals_per_day','4')=='2' %}selected{% endif %}>2</option>
+          <option value="4" {% if req.get('meals_per_day','4')=='4' %}selected{% endif %}>4</option>
+        </select>
       </div>
 
       <div>
         <label>Protein target</label>
         <input type="text" value="1.0 g per lb of body weight (auto)" readonly>
-        <div class="muted small" style="margin-top:4px;">
-          Enter your body weight above — protein grams auto-set to 1× body weight.
-        </div>
       </div>
 
       <div>
@@ -424,6 +414,7 @@ button{padding:10px 14px; border-radius:12px; background:var(--accent); color:#0
         <label>Cuisine (optional)</label>
         <input name="cuisine" placeholder="e.g., Mexican" value="{{ req.get('cuisine','') }}">
       </div>
+
       <div style="display:flex; align-items:end; gap:8px;">
         <button type="submit">Generate Plan</button>
         <a href="{{ url_for('seed_sample_route') }}" class="underline muted small" title="View sample items">View sample items</a>
@@ -462,7 +453,7 @@ button{padding:10px 14px; border-radius:12px; background:var(--accent); color:#0
   <div class="card">
     <div style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;">
       <div><strong>{{ calories }} kcal/day</strong> · Protein target {{ data.protein_target }}g · Carbs {{ data.carb_target }}g · Fat {{ data.fat_target }}g</div>
-      <div class="muted">{{ data.cuisine or data.chain or 'All menus' }} · {{ data.days }} days</div>
+      <div class="muted">{{ data.cuisine or data.chain or 'All menus' }} · {{ data.days }} days · {{ data.meals_per_day }} meals/day</div>
     </div>
     {% if data._meta and data._meta.note %}
       <div class="muted small" style="margin-top:6px;">{{ data._meta.note }}</div>
@@ -538,7 +529,7 @@ def write_pdf_plan(path: str, plan: Dict[str, Any], calories: int):
     story = []
     title = f"{APP_NAME} — {datetime.datetime.now().strftime('%Y-%m-%d')}"
     kicker = f"Target: {calories} kcal/day • Protein {plan['protein_target']}g • Carbs {plan['carb_target']}g • Fat {plan['fat_target']}g"
-    meta = f"Filters: cuisine={plan['cuisine'] or 'Any'} • chain={plan['chain'] or 'Any'}"
+    meta = f"Filters: cuisine={plan['cuisine'] or 'Any'} • chain={plan['chain'] or 'Any'} • meals/day={plan.get('meals_per_day', 4)}"
     header_tbl = Table([[Paragraph(title, styles["H1"])]],[6.5*inch])
     header_tbl.setStyle(TableStyle([("BACKGROUND",(0,0),(-1,-1),colors.HexColor("#68b5ff")),("LEFTPADDING",(0,0),(-1,-1),12),
                                     ("RIGHTPADDING",(0,0),(-1,-1),12),("TOPPADDING",(0,0),(-1,-1),10),("BOTTOMPADDING",(0,0),(-1,-1),10),
@@ -574,6 +565,14 @@ def _resolve_from_request(req):
     activity = req.get("activity", "moderate")
     cuisine = req.get("cuisine") or None; chain = req.get("chain") or None; days = int(req.get("days", 3))
 
+    # meals/day from UI (only 2 or 4 accepted)
+    try:
+        meals_per_day = int(req.get("meals_per_day", DEFAULT_MEALS_PER_DAY))
+    except Exception:
+        meals_per_day = DEFAULT_MEALS_PER_DAY
+    if meals_per_day not in (2, 4):
+        meals_per_day = DEFAULT_MEALS_PER_DAY
+
     meta_note = None
     try:
         if calories_param:
@@ -590,24 +589,14 @@ def _resolve_from_request(req):
     except Exception:
         calories_resolved = 2000; meta_note = "Invalid inputs; defaulted to 2000 kcal"
 
-    # Enforce 1.0 g/lb protein target; require weight (UI makes it required)
+    # Fixed protein rule: 1.0 g/lb (weight required in UI; if missing, we still handle gracefully)
     try:
         bw = float(weight_lb) if weight_lb else None
+        protein_g = int(round(bw)) if bw else None
     except Exception:
-        bw = None
+        protein_g = None
 
-    if bw is None:
-        # Hard stop to keep the rule consistent (no silent fallback to % protein)
-        empty = {
-            "days": 0, "cuisine": cuisine, "chain": chain, "plan": [],
-            "protein_target": 0, "carb_target": 0, "fat_target": 0,
-            "_meta": {"note": (meta_note or "") + " • Weight is required for 1.0 g/lb protein."}
-        }
-        return empty, calories_resolved
-
-    protein_g = int(round(bw))
-
-    data = generate_plan(calories_resolved, cuisine, chain, days, protein_g)
+    data = generate_plan(calories_resolved, cuisine, chain, days, protein_g, meals_per_day=meals_per_day)
     data["_meta"] = {"note": meta_note}
     return data, calories_resolved
 
@@ -658,7 +647,7 @@ def write_html_plan(path: str, plan: Dict[str, Any], calories: int):
     """
     header = f"<div class='hdr'>{APP_NAME} — {datetime.datetime.now().strftime('%Y-%m-%d')}</div>"
     kicker = f"<div class='meta'>Target: {calories} kcal/day • Protein {plan['protein_target']}g • Carbs {plan['carb_target']}g • Fat {plan['fat_target']}g</div>"
-    filt = f"<div class='meta'>Filters: cuisine={plan['cuisine'] or 'Any'} • chain={plan['chain'] or 'Any'}</div>"
+    filt = f"<div class='meta'>Filters: cuisine={plan['cuisine'] or 'Any'} • chain={plan['chain'] or 'Any'} • meals/day={plan.get('meals_per_day', 4)}</div>"
     parts = [f"<!doctype html><meta charset='utf-8'><title>Plan</title>{style}", header, kicker, filt]
     for i, d in enumerate(plan["plan"], 1):
         parts.append(f"<div class='day'><b>Day {i}</b> <span class='meta'>Totals: {d['K']} kcal • {d['P']}g P • {d['C']}g C • {d['F']}g F</span>")
@@ -671,8 +660,8 @@ def write_html_plan(path: str, plan: Dict[str, Any], calories: int):
     with open(path, "w", encoding="utf-8") as f:
         f.write(html)
 
-def headless_export(calories: int, cuisine: Optional[str], chain: Optional[str], days: int, protein_g: Optional[int], out_dir: str) -> Dict[str, str]:
-    plan = generate_plan(calories, cuisine, chain, days, protein_g)
+def headless_export(calories: int, cuisine: Optional[str], chain: Optional[str], days: int, protein_g: Optional[int], meals_per_day: int, out_dir: str) -> Dict[str, str]:
+    plan = generate_plan(calories, cuisine, chain, days, protein_g, meals_per_day=meals_per_day)
     out = pathlib.Path(out_dir); out.mkdir(parents=True, exist_ok=True)
     stamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S"); base = out / f"concierge_plan_{stamp}"
     files = {"json": str(base.with_suffix(".json")), "pdf": str(base.with_suffix(".pdf")), "html": str(base.with_suffix(".html"))}
@@ -694,27 +683,35 @@ def main_cli():
     parser.add_argument("--debug", action="store_true")
     parser.add_argument("--headless", action="store_true")
     parser.add_argument("--out", type=str, default="artifacts")
+
     parser.add_argument("--calories", type=int, default=None)
     parser.add_argument("--tdee", type=int, default=None)
     parser.add_argument("--goal", type=str, default="loss25")
+
     parser.add_argument("--sex", type=str, default=None)
     parser.add_argument("--weight_lb", type=float, default=None)
     parser.add_argument("--height_in", type=float, default=None)
     parser.add_argument("--age", type=int, default=None)
     parser.add_argument("--activity", type=str, default="moderate")
+
     parser.add_argument("--cuisine", type=str, default=None)
     parser.add_argument("--chain", type=str, default=None)
     parser.add_argument("--days", type=int, default=3)
 
+    # NEW: meals/day selection for headless
+    parser.add_argument("--meals_per_day", type=int, choices=[2,4], default=4)
+
     args = parser.parse_args()
 
     if not args.headless:
-        app.run(host=args.host, port=args.port, debug=args.debug); return
+        app.run(host=args.host, port=args.port, debug=args.debug)
+        return
 
-    if args.calories:
+    # Resolve calories
+    if args.calories is not None:
         calories_resolved = int(args.calories)
     else:
-        if args.tdee:
+        if args.tdee is not None:
             tdee = int(args.tdee)
         elif all([args.sex, args.weight_lb, args.height_in, args.age]):
             tdee = calc_tdee_from_stats(args.sex, float(args.weight_lb), float(args.height_in), int(args.age), args.activity)
@@ -722,12 +719,15 @@ def main_cli():
             tdee = 2000
         calories_resolved = calorie_goal_from_tdee(tdee, args.goal)
 
-    # Fixed 1.0 g/lb for CLI too
+    # Fixed 1.0 g/lb target
     protein_resolved = int(round(args.weight_lb)) if args.weight_lb else None
 
-    files = headless_export(calories_resolved, args.cuisine, args.chain, args.days, protein_resolved, args.out)
-    print("Headless export complete:"); [print(f"  {k}: {v}") for k,v in files.items()]
-    if not REPORTLAB_AVAILABLE: print("\nNOTE: PDF not generated (ReportLab missing). Install with: pip install reportlab")
+    files = headless_export(calories_resolved, args.cuisine, args.chain, args.days, protein_resolved, args.meals_per_day, args.out)
+    print("Headless export complete:")
+    for k, v in files.items():
+        print(f"  {k}: {v}")
+    if not REPORTLAB_AVAILABLE:
+        print("\nNOTE: PDF not generated (ReportLab missing). Install with: pip install reportlab")
 
 if __name__ == "__main__":
     main_cli()
