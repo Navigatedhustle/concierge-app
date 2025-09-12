@@ -1,4 +1,3 @@
-
 # Restaurant & Travel Concierge Meal Generator (Render-safe build)
 # - Standalone templates (no {% extends %})
 # - Headless HTML writer doesn't use Flask context
@@ -35,7 +34,6 @@ def add_embed_headers(resp):
 
 # ---------- MENU LOADING ----------
 import csv, io
-from typing import Iterable
 
 MENU_PATH = os.environ.get("MENU_PATH", "data/menu.json")  # local file in repo
 MENU_CSV_URL = os.environ.get("MENU_CSV_URL")              # published CSV URL (optional)
@@ -261,17 +259,6 @@ def calorie_goal_from_tdee(tdee: int, goal: str) -> int:
     if goal == "gain10": return int(round(tdee * 1.10))
     return int(round(tdee * 0.75))
 
-def protein_from_strategy(calories: int,
-                          strategy: str = "per_lb",
-                          body_weight_lb: Optional[float] = None,
-                          percent: float = 0.35,
-                          per_lb: float = 0.9) -> int:
-    strategy = (strategy or "per_lb").lower()
-    if strategy == "per_lb" and body_weight_lb:
-        g = max(0.8, per_lb) * body_weight_lb
-        g = min(g, 1.2 * body_weight_lb)
-        return int(round(g))
-    return int(round(percent * calories / 4))
 
 # ---------------
 # Plan generator
@@ -386,15 +373,20 @@ button{padding:10px 14px; border-radius:12px; background:var(--accent); color:#0
         <label>Days</label>
         <input type="number" name="days" value="{{ req.get('days',3) }}" min="1" max="7">
       </div>
+
       <div style="grid-column:1/-1;">
         <label>Don’t know your TDEE? Estimate from stats</label>
+
+        <!-- Row 1: sex, age, activity -->
         <div class="grid g3">
           <select name="sex">
             <option value="">Sex</option>
             <option value="male"   {% if req.get('sex')=='male' %}selected{% endif %}>Male</option>
             <option value="female" {% if req.get('sex')=='female' %}selected{% endif %}>Female</option>
           </select>
+
           <input name="age" type="number" placeholder="Age" value="{{ req.get('age','') }}">
+
           <select name="activity">
             <option value="sedentary" {% if req.get('activity')=='sedentary' %}selected{% endif %}>Sedentary</option>
             <option value="light"     {% if req.get('activity')=='light' %}selected{% endif %}>Light</option>
@@ -403,27 +395,27 @@ button{padding:10px 14px; border-radius:12px; background:var(--accent); color:#0
             <option value="athlete"   {% if req.get('activity')=='athlete' %}selected{% endif %}>Athlete</option>
           </select>
         </div>
+
+        <!-- Row 2: weight, height, help text -->
         <div class="grid g3" style="margin-top:8px;">
-          <input name="weight_lb" type="number" step="0.1" placeholder="Weight (lb)" value="{{ req.get('weight_lb','') }}">
-          <input name="height_in" type="number" step="0.1" placeholder="Height (in)" value="{{ req.get('height_in','') }}">
-          <div class="muted small" style="align-self:center;">We'll estimate if TDEE is blank.</div>
+          <input name="weight_lb" type="number" step="0.1" min="60" max="600"
+                 placeholder="Weight (lb)" required value="{{ req.get('weight_lb','') }}">
+          <input name="height_in" type="number" step="0.1"
+                 placeholder="Height (in)" value="{{ req.get('height_in','') }}">
+          <div class="muted small" style="align-self:center;">
+            If TDEE is blank, we’ll estimate it. Protein target is fixed at 1.0 g/lb.
+          </div>
         </div>
       </div>
+
       <div>
-        <label>Protein Strategy</label>
-        <select name="protein_strategy">
-          <option value="per_lb" {% if req.get('protein_strategy','per_lb')=='per_lb' %}selected{% endif %}>g per lb (cut-friendly)</option>
-          <option value="percent" {% if req.get('protein_strategy')=='percent' %}selected{% endif %}>% of calories</option>
-        </select>
-      </div>
-      <div>
-        <label>Protein (per-lb or %)</label>
-        <div class="grid g2">
-          <input type="number" step="0.05" name="protein_per_lb" value="{{ req.get('protein_per_lb',0.9) }}" title="If using g/lb">
-          <input type="number" step="0.01" name="protein_percent" value="{{ req.get('protein_percent',0.35) }}" title="If using % of calories">
+        <label>Protein target</label>
+        <input type="text" value="1.0 g per lb of body weight (auto)" readonly>
+        <div class="muted small" style="margin-top:4px;">
+          Enter your body weight above — protein grams auto-set to 1× body weight.
         </div>
-        <div class="muted small" style="margin-top:4px;">Defaults: 0.9 g/lb or 35% calories.</div>
       </div>
+
       <div>
         <label>Chain (optional)</label>
         <input name="chain" placeholder="e.g., Chipotle" value="{{ req.get('chain','') }}">
@@ -581,8 +573,7 @@ def _resolve_from_request(req):
     sex = req.get("sex"); weight_lb = req.get("weight_lb"); height_in = req.get("height_in"); age = req.get("age")
     activity = req.get("activity", "moderate")
     cuisine = req.get("cuisine") or None; chain = req.get("chain") or None; days = int(req.get("days", 3))
-    prot_strategy = req.get("protein_strategy", "per_lb")
-    prot_percent  = float(req.get("protein_percent", 0.35)); prot_per_lb = float(req.get("protein_per_lb", 0.9))
+
     meta_note = None
     try:
         if calories_param:
@@ -598,12 +589,26 @@ def _resolve_from_request(req):
             if not meta_note: meta_note = f"TDEE {tdee} → goal '{goal}' ⇒ {calories_resolved} kcal/day"
     except Exception:
         calories_resolved = 2000; meta_note = "Invalid inputs; defaulted to 2000 kcal"
+
+    # Enforce 1.0 g/lb protein target; require weight (UI makes it required)
     try:
         bw = float(weight_lb) if weight_lb else None
-        protein_g = protein_from_strategy(calories=calories_resolved, strategy=prot_strategy, body_weight_lb=bw, percent=prot_percent, per_lb=prot_per_lb)
     except Exception:
-        protein_g = None
-    data = generate_plan(calories_resolved, cuisine, chain, days, protein_g); data["_meta"] = {"note": meta_note}
+        bw = None
+
+    if bw is None:
+        # Hard stop to keep the rule consistent (no silent fallback to % protein)
+        empty = {
+            "days": 0, "cuisine": cuisine, "chain": chain, "plan": [],
+            "protein_target": 0, "carb_target": 0, "fat_target": 0,
+            "_meta": {"note": (meta_note or "") + " • Weight is required for 1.0 g/lb protein."}
+        }
+        return empty, calories_resolved
+
+    protein_g = int(round(bw))
+
+    data = generate_plan(calories_resolved, cuisine, chain, days, protein_g)
+    data["_meta"] = {"note": meta_note}
     return data, calories_resolved
 
 # -----------------------------
@@ -683,31 +688,47 @@ def headless_export(calories: int, cuisine: Optional[str], chain: Optional[str],
 # CLI
 # -----------------------------
 def main_cli():
-    import argparse
     parser = argparse.ArgumentParser(description="Concierge Meal Generator")
-    parser.add_argument("--host", default="0.0.0.0"); parser.add_argument("--port", type=int, default=int(os.environ.get("PORT", 5000)))
+    parser.add_argument("--host", default="0.0.0.0")
+    parser.add_argument("--port", type=int, default=int(os.environ.get("PORT", 5000)))
     parser.add_argument("--debug", action="store_true")
-    parser.add_argument("--headless", action="store_true"); parser.add_argument("--out", type=str, default="artifacts")
-    parser.add_argument("--calories", type=int, default=None); parser.add_argument("--tdee", type=int, default=None); parser.add_argument("--goal", type=str, default="loss25")
-    parser.add_argument("--sex", type=str, default=None); parser.add_argument("--weight_lb", type=float, default=None); parser.add_argument("--height_in", type=float, default=None)
-    parser.add_argument("--age", type=int, default=None); parser.add_argument("--activity", type=str, default="moderate")
-    parser.add_argument("--cuisine", type=str, default=None); parser.add_argument("--chain", type=str, default=None); parser.add_argument("--days", type=int, default=3)
-    parser.add_argument("--protein_strategy", type=str, default="per_lb"); parser.add_argument("--protein_percent", type=float, default=0.35); parser.add_argument("--protein_per_lb", type=float, default=0.9)
+    parser.add_argument("--headless", action="store_true")
+    parser.add_argument("--out", type=str, default="artifacts")
+    parser.add_argument("--calories", type=int, default=None)
+    parser.add_argument("--tdee", type=int, default=None)
+    parser.add_argument("--goal", type=str, default="loss25")
+    parser.add_argument("--sex", type=str, default=None)
+    parser.add_argument("--weight_lb", type=float, default=None)
+    parser.add_argument("--height_in", type=float, default=None)
+    parser.add_argument("--age", type=int, default=None)
+    parser.add_argument("--activity", type=str, default="moderate")
+    parser.add_argument("--cuisine", type=str, default=None)
+    parser.add_argument("--chain", type=str, default=None)
+    parser.add_argument("--days", type=int, default=3)
+
     args = parser.parse_args()
+
     if not args.headless:
         app.run(host=args.host, port=args.port, debug=args.debug); return
-    if args.calories: calories_resolved = int(args.calories)
+
+    if args.calories:
+        calories_resolved = int(args.calories)
     else:
-        if args.tdee: tdee = int(args.tdee)
-        elif all([args.sex, args.weight_lb, args.height_in, args.age]): tdee = calc_tdee_from_stats(args.sex, float(args.weight_lb), float(args.height_in), int(args.age), args.activity)
-        else: tdee = 2000
+        if args.tdee:
+            tdee = int(args.tdee)
+        elif all([args.sex, args.weight_lb, args.height_in, args.age]):
+            tdee = calc_tdee_from_stats(args.sex, float(args.weight_lb), float(args.height_in), int(args.age), args.activity)
+        else:
+            tdee = 2000
         calories_resolved = calorie_goal_from_tdee(tdee, args.goal)
-    try:
-        protein_resolved = protein_from_strategy(calories=calories_resolved, strategy=args.protein_strategy, body_weight_lb=args.weight_lb, percent=args.protein_percent, per_lb=args.protein_per_lb)
-    except Exception: protein_resolved = None
+
+    # Fixed 1.0 g/lb for CLI too
+    protein_resolved = int(round(args.weight_lb)) if args.weight_lb else None
+
     files = headless_export(calories_resolved, args.cuisine, args.chain, args.days, protein_resolved, args.out)
     print("Headless export complete:"); [print(f"  {k}: {v}") for k,v in files.items()]
     if not REPORTLAB_AVAILABLE: print("\nNOTE: PDF not generated (ReportLab missing). Install with: pip install reportlab")
 
 if __name__ == "__main__":
     main_cli()
+
