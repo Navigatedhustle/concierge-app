@@ -504,7 +504,7 @@ button{padding:10px 14px; border-radius:12px; background:var(--accent); color:#0
         <div class="grid g3" style="margin-top:8px;">
           <input name="weight_lb" type="number" step="0.1" min="60" max="600" placeholder="Weight (lb)" required value="{{ req.get('weight_lb','') }}">
           <input name="height_in" type="number" step="0.1" placeholder="Height (in)" value="{{ req.get('height_in','') }}">
-          <div class="muted small" style="align-self:center;">Protein target uses 1.0 g/lb. We'll estimate calories if TDEE is blank.</div>
+          <div class="muted small" style="align-self:center;">Protein target uses 1.0 g/lb. We'll estimate calories if TDEE is blank. For education only, not medical advice.</div>
         </div>
       </div>
 
